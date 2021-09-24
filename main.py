@@ -45,28 +45,35 @@ screen = pygame.display.set_mode((128, 128), SCALED, 1)
 pygame.display.set_caption('3D thing!')
   
 screen.fill(background_colour)
+def toProjected2D(coords):
+    xRotation = [[1, 0, 0],
+                [0, np.cos(xAngle), -np.sin(xAngle)],
+                [0, np.sin(xAngle), np.cos(xAngle)]]
+
+    yRotation = [[np.cos(yAngle), 0, np.sin(yAngle)],
+                [0, 1, 0],
+                [-np.sin(yAngle), 0, np.cos(yAngle)]]
+
+    zRotation = [[np.cos(zAngle), -np.sin(zAngle), 0],
+                [np.sin(zAngle), np.cos(zAngle), 0],
+                [0, 0, 1]]
+    #All rotation object can make
+    rotated = np.matmul(coords, xRotation)
+    rotated = np.matmul(rotated, yRotation)
+    rotated = np.matmul(rotated, zRotation)
+
+    projected2D = np.matmul(rotated, orthProjection)
+            
+    return projected2D
 
 def renderObject(model, xAngle, yAngle, zAngle):  
     for x in range(len(model.vertices)):
-
-            xRotation = [[1, 0, 0],
-                            [0, np.cos(xAngle), -np.sin(xAngle)],
-                            [0, np.sin(xAngle), np.cos(xAngle)]]
-
-            yRotation = [[np.cos(yAngle), 0, np.sin(yAngle)],
-                            [0, 1, 0],
-                            [-np.sin(yAngle), 0, np.cos(yAngle)]]
-
-            zRotation = [[np.cos(zAngle), -np.sin(zAngle), 0],
-                            [np.sin(zAngle), np.cos(zAngle), 0],
-                            [0, 0, 1]]
-            #All rotation object can make
-            rotated = np.matmul(model.vertices[x], xRotation)
-            rotated = np.matmul(rotated, yRotation)
-            rotated = np.matmul(rotated, zRotation)
-            
-            projected2D = np.matmul(rotated, orthProjection)
-            pygame.draw.rect(screen, colours.red, (int(projected2D[0][0]) + 64, int(projected2D[0][1]) + 64, 1, 1))
+            one = toProjected2D(model.vertices[x])
+            two = toProjected2D(model.vertices[x])
+            three = toProjected2D(model.vertices[x])
+        
+            pygame.draw.polygon(screen, colours.red, [int(one[0][0]) + 64, int(one[0][1]) + 64,), two, three])
+            pygame.draw.rect(screen, colours.red, (int(one[0][0]) + 64, int(one[0][1]) + 64, 1, 1))
 pygame.display.flip()
 
 running = True
