@@ -1,3 +1,4 @@
+#pyramid
 class transform:
     size = 20
     xPos = 0
