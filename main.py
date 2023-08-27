@@ -1,13 +1,14 @@
 from pygame import *
 from pygame import gfxdraw
-import pygame, model6, model5, model4, model7
+import pygame, modelLoader
 import numpy as np
 
 xAngle = np.deg2rad(180)
 yAngle = np.deg2rad(0)
 zAngle = np.deg2rad(0)
-screenSize = [256, 256]
-
+screenSize = [1280, 720]
+scale = 200
+distance = 4
 class colours:
     black = (40,40,46)
     purple = (108,86,113)
@@ -28,11 +29,9 @@ class colours:
     yellow = (255,247,160)
     white = (255,247,228)
 orthProjection = [[1, 0, 0], [0, 1, 0],[0,0,0]]
-
 xRotation = [[1, 0, 0],
                 [0, np.cos(xAngle), -np.sin(xAngle)],
                 [0, np.sin(xAngle), np.cos(xAngle)]]
-
 yRotation = [[np.cos(yAngle), 0, np.sin(yAngle)],
                 [0, 1, 0],
                 [-np.sin(yAngle), 0, np.cos(yAngle)]]
@@ -67,20 +66,14 @@ def rotated(coords, xAngle, yAngle, zAngle):
             
     return rotated
 
-def toProjected2D(coords):
-    projected2D = np.matmul(coords, orthProjection)
-    return projected2D
-
-# first color is light, then medium then dark
+# first color is light, then medium then dark then outline
 def renderObject(model, xAngle, yAngle, zAngle, colours, thickness):      
-    maxNormal = 0
-    minNormal = 1000
     for x in range(len(model.faces)): 
             shade = 0
             one = [0,0,0]
-            one = rotated(model.vertices[(model.faces[x][0][0]) - 1], xAngle, yAngle, zAngle)
-            two = rotated(model.vertices[(model.faces[x][1][0]) - 1], xAngle, yAngle, zAngle)
-            three = rotated(model.vertices[(model.faces[x][2][0]) - 1], xAngle, yAngle, zAngle)
+            one = rotated(model.verticies[(model.faces[x][0][0]) - 1], xAngle, yAngle, zAngle)
+            two = rotated(model.verticies[(model.faces[x][1][0]) - 1], xAngle, yAngle, zAngle)
+            three = rotated(model.verticies[(model.faces[x][2][0]) - 1], xAngle, yAngle, zAngle)
             # normal calc
             normal = [0,0,0]
             line1 = [0,0,0]
@@ -103,43 +96,46 @@ def renderObject(model, xAngle, yAngle, zAngle, colours, thickness):
             normal[2] /= l
                 
             if(normal[2] > 0):
-                if(normal[2] > maxNormal):
-                    maxNormal = normal[2]
-                elif(normal[2] < minNormal):
-                    minNormal = normal[2]
-                one = toProjected2D(one)
-                two = toProjected2D(two)
-                three = toProjected2D(three)
-                
+
+                # shitty boys dogshit projection
+                # z = 1 / (distance - one[0][2])
+                # perspectiveProjection = [[z, 0, 0], [0, z, 0],[0,0,0]]
+                one = np.matmul(one, orthProjection)
+                # z = 1 / (distance - two[0][2])
+                # perspectiveProjection = [[z, 0, 0], [0, z, 0],[0,0,0]]
+                two = np.matmul(two, orthProjection)
+                # z = 1 / (distance - three[0][2])
+                # perspectiveProjection = [[z, 0, 0], [0, z, 0],[0,0,0]]
+                three = np.matmul(three, orthProjection)                
 
                 # shader color
-                if( normal[0]>= .7):
-                    shade=0
-                elif( normal[0]>= -.5):
+                if( (normal[1]+normal[0])>= 0):
+                    shade=2
+                elif( (normal[1]+normal[0])>= -1.2):
                     shade=1
                 else:
-                    shade=2
-                pygame.gfxdraw.filled_polygon(screen, [((one[0][0]) + (screenSize[0] / 2), (one[0][1]) + (screenSize[1] / 2)), ((two[0][0]) + (screenSize[0] / 2), (two[0][1]) + (screenSize[1] / 2)), ((three[0][0]) + (screenSize[0] / 2), (three[0][1]) + (screenSize[1] / 2))], colours[shade])
-
+                    shade=0
+                pygame.gfxdraw.filled_polygon(screen, [((one[0][0])*scale + (screenSize[0] / 2), (one[0][1])*scale + (screenSize[1] / 2)), ((two[0][0])*scale + (screenSize[0] / 2), (two[0][1])*scale + (screenSize[1] / 2)), ((three[0][0])*scale + (screenSize[0] / 2), (three[0][1])*scale + (screenSize[1] / 2))], colours[shade])
+                pygame.gfxdraw.polygon(screen, [((one[0][0])*scale + (screenSize[0] / 2), (one[0][1])*scale + (screenSize[1] / 2)), ((two[0][0])*scale + (screenSize[0] / 2), (two[0][1])*scale + (screenSize[1] / 2)), ((three[0][0])*scale + (screenSize[0] / 2), (three[0][1])*scale + (screenSize[1] / 2))], colours[3])
 pygame.display.flip()
 
 running = True
 # game loop
 while running:
-    screen.fill(colours.black)
+    screen.fill(colours.white)
     for event in pygame.event.get():
         # Check for QUIT event      
         if event.type == pygame.QUIT:
             running = False
     keys = pygame.key.get_pressed()  # Checking pressed keys
     if keys[pygame.K_LEFT]:
-        yAngle -= .01
+        yAngle -= .1
     if keys[pygame.K_RIGHT]:
-        yAngle += .01
+        yAngle += .1
     if keys[pygame.K_UP]:
-        xAngle -= .01
+        xAngle -= .1
     if keys[pygame.K_DOWN]:
-        xAngle += .01
-    renderObject(model5, xAngle, yAngle, zAngle, [colours.white,colours.tan,colours.orange], 0)
+        xAngle += .1
+    renderObject(modelLoader, xAngle, yAngle, zAngle, [colours.white,colours.blue,colours.darkBlue,colours.black], 0)
     
     pygame.display.update()
