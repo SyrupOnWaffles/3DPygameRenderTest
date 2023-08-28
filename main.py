@@ -3,12 +3,13 @@ from pygame import gfxdraw
 import pygame, modelLoader
 import numpy as np
 
-xAngle = np.deg2rad(180)
-yAngle = np.deg2rad(0)
-zAngle = np.deg2rad(0)
-screenSize = [1280, 720]
-scale = 200
-distance = 4
+screenSize = [1080, 720]
+scale = 100
+# distance = 40
+
+class model1:
+    faces = []
+    verticies = []
 class colours:
     black = (40,40,46)
     purple = (108,86,113)
@@ -28,7 +29,15 @@ class colours:
     orange = (255,195,132)
     yellow = (255,247,160)
     white = (255,247,228)
+
 orthProjection = [[1, 0, 0], [0, 1, 0],[0,0,0]]
+
+modelLoader.loadObj("newmodels/cow.obj",model1)
+
+# rotation shit
+xAngle = np.deg2rad(180)
+yAngle = np.deg2rad(0)
+zAngle = np.deg2rad(0)
 xRotation = [[1, 0, 0],
                 [0, np.cos(xAngle), -np.sin(xAngle)],
                 [0, np.sin(xAngle), np.cos(xAngle)]]
@@ -42,10 +51,8 @@ zRotation = [[np.cos(zAngle), -np.sin(zAngle), 0],
 
 
 screen = pygame.display.set_mode((screenSize[0], screenSize[1]), SCALED, 1)
-
 texture = pygame.image.load("texture.png")
-# Set the caption of the screen
-pygame.display.set_caption('3D thing!')
+pygame.display.set_caption('software renderer')
   
 def rotated(coords, xAngle, yAngle, zAngle):
     xRotation = [[1, 0, 0],
@@ -97,32 +104,17 @@ def renderObject(model, xAngle, yAngle, zAngle, colours, thickness):
                 
             if(normal[2] > 0):
 
-                # shitty boys dogshit projection
-                # z = 1 / (distance - one[0][2])
-                # perspectiveProjection = [[z, 0, 0], [0, z, 0],[0,0,0]]
                 one = np.matmul(one, orthProjection)
-                # z = 1 / (distance - two[0][2])
-                # perspectiveProjection = [[z, 0, 0], [0, z, 0],[0,0,0]]
                 two = np.matmul(two, orthProjection)
-                # z = 1 / (distance - three[0][2])
-                # perspectiveProjection = [[z, 0, 0], [0, z, 0],[0,0,0]]
                 three = np.matmul(three, orthProjection)                
-
-                # shader color
-                if( (normal[1]+normal[0])>= 0):
-                    shade=2
-                elif( (normal[1]+normal[0])>= -1.2):
-                    shade=1
-                else:
-                    shade=0
                 pygame.gfxdraw.filled_polygon(screen, [((one[0][0])*scale + (screenSize[0] / 2), (one[0][1])*scale + (screenSize[1] / 2)), ((two[0][0])*scale + (screenSize[0] / 2), (two[0][1])*scale + (screenSize[1] / 2)), ((three[0][0])*scale + (screenSize[0] / 2), (three[0][1])*scale + (screenSize[1] / 2))], colours[shade])
-                pygame.gfxdraw.polygon(screen, [((one[0][0])*scale + (screenSize[0] / 2), (one[0][1])*scale + (screenSize[1] / 2)), ((two[0][0])*scale + (screenSize[0] / 2), (two[0][1])*scale + (screenSize[1] / 2)), ((three[0][0])*scale + (screenSize[0] / 2), (three[0][1])*scale + (screenSize[1] / 2))], colours[3])
+                # pygame.gfxdraw.polygon(screen, [((one[0][0])*scale + (screenSize[0] / 2), (one[0][1])*scale + (screenSize[1] / 2)), ((two[0][0])*scale + (screenSize[0] / 2), (two[0][1])*scale + (screenSize[1] / 2)), ((three[0][0])*scale + (screenSize[0] / 2), (three[0][1])*scale + (screenSize[1] / 2))], colours[3])
 pygame.display.flip()
 
 running = True
 # game loop
 while running:
-    screen.fill(colours.white)
+    screen.fill(colours.black)
     for event in pygame.event.get():
         # Check for QUIT event      
         if event.type == pygame.QUIT:
@@ -136,6 +128,6 @@ while running:
         xAngle -= .1
     if keys[pygame.K_DOWN]:
         xAngle += .1
-    renderObject(modelLoader, xAngle, yAngle, zAngle, [colours.white,colours.blue,colours.darkBlue,colours.black], 0)
+    renderObject(model1, xAngle, yAngle, zAngle, [colours.white,colours.blue,colours.darkBlue,colours.black], 0)
     
     pygame.display.update()
