@@ -4,7 +4,7 @@ import pygame, modelLoader
 import numpy as np
 
 screenSize = [1280, 720]
-scale = 10
+scale = 100
 
 class model:
     faces = []
@@ -32,7 +32,7 @@ class colours:
 
 orthProjection = [[1, 0, 0], [0, 1, 0],[0,0,0]]
 
-modelLoader.loadObj("newmodels/simplifiedTeapot.obj",model)
+modelLoader.loadObj("newmodels/cow.obj",model)
 
 # rotation
 xAngle = np.deg2rad(180)
@@ -44,7 +44,6 @@ xRotation = [[1, 0, 0],
 yRotation = [[np.cos(yAngle), 0, np.sin(yAngle)],
                 [0, 1, 0],
                 [-np.sin(yAngle), 0, np.cos(yAngle)]]
-
 zRotation = [[np.cos(zAngle), -np.sin(zAngle), 0],
                 [np.sin(zAngle), np.cos(zAngle), 0],
                 [0, 0, 1]]    
@@ -104,12 +103,12 @@ def renderObject(model, xAngle, yAngle, zAngle, colour, thickness):
             if(normal[2] > 0):
                 # weird shading but ok
                 l = abs(normal[0])
-                print(l)
 
                 one = np.matmul(one, orthProjection)
                 two = np.matmul(two, orthProjection)
-                three = np.matmul(three, orthProjection)                
-                pygame.gfxdraw.filled_polygon(screen, [((one[0][0])*scale + (screenSize[0] / 2), (one[0][1])*scale + (screenSize[1] / 2)), ((two[0][0])*scale + (screenSize[0] / 2), (two[0][1])*scale + (screenSize[1] / 2)), ((three[0][0])*scale + (screenSize[0] / 2), (three[0][1])*scale + (screenSize[1] / 2))], (255*l,255*l,255*l))
+                three = np.matmul(three, orthProjection)
+
+                pygame.gfxdraw.filled_polygon(screen, [((one[0][0])*scale + (screenSize[0] / 2), (one[0][1])*scale + (screenSize[1] / 2)), ((two[0][0])*scale + (screenSize[0] / 2), (two[0][1])*scale + (screenSize[1] / 2)), ((three[0][0])*scale + (screenSize[0] / 2), (three[0][1])*scale + (screenSize[1] / 2))], (255*l,195*l,132*l))
                 # pygame.gfxdraw.polygon(screen, [((one[0][0])*scale + (screenSize[0] / 2), (one[0][1])*scale + (screenSize[1] / 2)), ((two[0][0])*scale + (screenSize[0] / 2), (two[0][1])*scale + (screenSize[1] / 2)), ((three[0][0])*scale + (screenSize[0] / 2), (three[0][1])*scale + (screenSize[1] / 2))], colours[3])
 pygame.display.flip()
 
