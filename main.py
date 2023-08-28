@@ -4,7 +4,7 @@ import pygame, modelLoader
 import numpy as np
 
 screenSize = [1080, 720]
-scale = 100
+scale = 10
 # distance = 40
 
 class model1:
@@ -32,7 +32,7 @@ class colours:
 
 orthProjection = [[1, 0, 0], [0, 1, 0],[0,0,0]]
 
-modelLoader.loadObj("newmodels/cow.obj",model1)
+modelLoader.loadObj("newmodels/simplifiedTeapot.obj",model1)
 
 # rotation shit
 xAngle = np.deg2rad(180)
