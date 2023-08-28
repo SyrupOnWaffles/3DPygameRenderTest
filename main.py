@@ -3,13 +3,13 @@ from pygame import gfxdraw
 import pygame, modelLoader
 import numpy as np
 
-screenSize = [1080, 720]
+screenSize = [1280, 720]
 scale = 10
-# distance = 40
 
-class model1:
+class model:
     faces = []
     verticies = []
+
 class colours:
     black = (40,40,46)
     purple = (108,86,113)
@@ -32,9 +32,9 @@ class colours:
 
 orthProjection = [[1, 0, 0], [0, 1, 0],[0,0,0]]
 
-modelLoader.loadObj("newmodels/simplifiedTeapot.obj",model1)
+modelLoader.loadObj("newmodels/simplifiedTeapot.obj",model)
 
-# rotation shit
+# rotation
 xAngle = np.deg2rad(180)
 yAngle = np.deg2rad(0)
 zAngle = np.deg2rad(0)
@@ -73,8 +73,7 @@ def rotated(coords, xAngle, yAngle, zAngle):
             
     return rotated
 
-# first color is light, then medium then dark then outline
-def renderObject(model, xAngle, yAngle, zAngle, colours, thickness):      
+def renderObject(model, xAngle, yAngle, zAngle, colour, thickness):      
     for x in range(len(model.faces)): 
             shade = 0
             one = [0,0,0]
@@ -103,11 +102,14 @@ def renderObject(model, xAngle, yAngle, zAngle, colours, thickness):
             normal[2] /= l
                 
             if(normal[2] > 0):
+                # weird shading but ok
+                l = abs(normal[0])
+                print(l)
 
                 one = np.matmul(one, orthProjection)
                 two = np.matmul(two, orthProjection)
                 three = np.matmul(three, orthProjection)                
-                pygame.gfxdraw.filled_polygon(screen, [((one[0][0])*scale + (screenSize[0] / 2), (one[0][1])*scale + (screenSize[1] / 2)), ((two[0][0])*scale + (screenSize[0] / 2), (two[0][1])*scale + (screenSize[1] / 2)), ((three[0][0])*scale + (screenSize[0] / 2), (three[0][1])*scale + (screenSize[1] / 2))], colours[shade])
+                pygame.gfxdraw.filled_polygon(screen, [((one[0][0])*scale + (screenSize[0] / 2), (one[0][1])*scale + (screenSize[1] / 2)), ((two[0][0])*scale + (screenSize[0] / 2), (two[0][1])*scale + (screenSize[1] / 2)), ((three[0][0])*scale + (screenSize[0] / 2), (three[0][1])*scale + (screenSize[1] / 2))], (255*l,255*l,255*l))
                 # pygame.gfxdraw.polygon(screen, [((one[0][0])*scale + (screenSize[0] / 2), (one[0][1])*scale + (screenSize[1] / 2)), ((two[0][0])*scale + (screenSize[0] / 2), (two[0][1])*scale + (screenSize[1] / 2)), ((three[0][0])*scale + (screenSize[0] / 2), (three[0][1])*scale + (screenSize[1] / 2))], colours[3])
 pygame.display.flip()
 
@@ -128,6 +130,6 @@ while running:
         xAngle -= .1
     if keys[pygame.K_DOWN]:
         xAngle += .1
-    renderObject(model1, xAngle, yAngle, zAngle, [colours.white,colours.blue,colours.darkBlue,colours.black], 0)
+    renderObject(model, xAngle, yAngle, zAngle, colours.white, 0)
     
     pygame.display.update()
